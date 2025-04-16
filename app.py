@@ -4,22 +4,34 @@ import joblib
 from utils import preprocessor
 
 def run():
-    model = joblib.load(open('model.joblib', 'rb'))
+    st.title("Language Identification")
+    st.text("This app detects the language of the text you enter.\n")
 
-    st.title("Sentiment Analysis")
-    st.text("Basic app to detect the sentiment of text.")
+    # Load model
+    model = joblib.load('language_identifier_model.joblib')
+
+    # Load and show supported languages
+    label_encoder = joblib.load('label_encoder.joblib')
+    supported_languages = label_encoder.classes_
+    st.markdown("**Supported languages:**")
+    st.write(", ".join(supported_languages))
     st.text("")
-    userinput = st.text_input('Enter text below, then click the Predict button.', placeholder='Input text HERE')
+
+    # User input
+    userinput = st.text_input(
+        'Type or paste some text:',
+        placeholder='e.g., Bonjour, comment ça va?'
+    )
     st.text("")
-    predicted_sentiment = ""
-    if st.button("Predict"):
-        predicted_sentiment = model.predict(pd.Series(userinput))[0]
-        if predicted_sentiment == 1:
-            output = 'positive 👍'
+
+    # Button click
+    if st.button("Detect Language"):
+        if userinput.strip() != "":
+            cleaned_text = preprocessor(userinput)
+            predicted_lang = model.predict(pd.Series([cleaned_text]))[0]
+            st.success(f'The detected language is: **{predicted_lang}**')
         else:
-            output = 'negative 👎'
-        sentiment=f'Predicted sentiment of "{userinput}" is {output}.'
-        st.success(sentiment)
+            st.warning("Please enter some text to detect.")
 
 if __name__ == "__main__":
     run()
