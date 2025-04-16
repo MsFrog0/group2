@@ -3,27 +3,24 @@ import joblib
 import pandas as pd
 
 def run():
-    model = joblib.load(open('language_detector_model.joblib', 'rb'))
+    model = joblib.load(open('news_classifier_model.joblib', 'rb'))
 
-    st.title("Language Detector (Arabic or English)")
-    st.text("Enter text and this app will tell you if it's in Arabic or English.")
+    st.title("Fake News Detection")
+    st.text("Simple app to classify if a news article is real or fake.")
     st.text("")
     
-    userinput = st.text_area('Enter your text below:', placeholder='e.g., Hello, how are you?')
+    userinput = st.text_area('Enter a news article snippet below:', placeholder='e.g., The government announced a new policy...')
     st.text("")
     
-    if st.button("Detect Language"):
-        if userinput.strip() != "":
-            prediction = model.predict(pd.Series([userinput]))[0]
-            if prediction == "ar":
-                lang = "Arabic 🇸🇦"
-            elif prediction == "en":
-                lang = "English 🇺🇸"
-            else:
-                lang = "Unknown ❓"
-            st.success(f"The detected language is: {lang}")
+    prediction_result = ""
+    if st.button("Classify"):
+        prediction_result = model.predict(pd.Series(userinput))[0]
+        if prediction_result == 1:
+            output = 'Real 📰'
         else:
-            st.warning("Please enter some text.")
+            output = 'Fake 🚨'
+        classification = f'The entered news text is classified as: {output}'
+        st.success(classification)
 
 if __name__ == "__main__":
     run()
